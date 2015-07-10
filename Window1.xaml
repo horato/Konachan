@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Controls:MetroWindow
+	x:Class="Konachan.Window1" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro" xmlns:local="clr-namespace:Konachan"
+	Title="Konachan" Height="700" Width="1000" Closing="MetroWindow_Closing" 
+    ResizeMode="NoResize"  WindowStartupLocation="Manual" Left="50" Top="50">
+	
+	<Grid>
+		<Grid x:Name="backgroundImgGrid" Visibility="Collapsed" Panel.ZIndex="5" Width="900" Height="600" MouseDown="BackgroudImg_MouseDown">
+			<Grid.Background>
+				<SolidColorBrush Color="Black" Opacity="1"/>
+			</Grid.Background>
+			
+			<Controls:ProgressRing Panel.ZIndex="6" x:Name="progressRing" IsActive="True" Width="100" Height="100"/>
+			<local:CachedImage
+				Panel.ZIndex="7"
+				Visibility="Hidden"
+				HorizontalAlignment="Left"
+				VerticalAlignment="Top"
+				x:Name="backgroudImg"
+				Margin="0,0,0,0"
+				MouseDown="BackgroudImg_MouseDown"
+				DownloadCompleted="img_DownloadCompleted"
+			/>
+		</Grid>
+		
+		<ProgressBar
+			x:Name="ProgressBar"
+			Height="20"
+			Width="974"
+			Grid.Column="0"
+			Grid.Row="0"
+			HorizontalAlignment="Left"
+			VerticalAlignment="Bottom"
+			Margin="8,0,0,8" />
+		<ListView
+			x:Name="ImgListView"
+			Width="900"
+			Height="600"
+			HorizontalAlignment="Left"
+			VerticalAlignment="Top"
+			Margin="40,8,0,0"
+			ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+			<ListView.ItemsPanel>
+				<ItemsPanelTemplate>
+					<WrapPanel Orientation="Horizontal"></WrapPanel>
+				</ItemsPanelTemplate>
+			</ListView.ItemsPanel>
+		</ListView>
+	</Grid>
+</Controls:MetroWindow>
