@@ -53,7 +53,9 @@ namespace Konachan
 		public double width;
 		
 		public Post(XmlAttributeCollection collection)
-		{
+		{	
+			if(collection == null)
+				return;
 			var type = typeof(Post);
 			foreach (XmlNode attribute in collection)
 			{

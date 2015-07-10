@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -17,6 +18,7 @@ using System.Threading;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -34,33 +36,13 @@ namespace Konachan
 	public partial class Window1 : MetroWindow
 	{
 		private System.Timers.Timer Timer = new System.Timers.Timer();
-		private List<Post> Container = new List<Post>();
 		private List<Post> Imgs = new List<Post>();
+		private int Page = 1;
 		
 		public Window1()
 		{
 			InitializeComponent();
-			
 			new Thread(getImages).Start();
-			Timer.AutoReset = true;
-			Timer.Elapsed += timer_Elapsed;
-			Timer.Interval = 2000;
-		}
-
-		void timer_Elapsed(object sender, ElapsedEventArgs e)
-		{
-			if (Imgs.Count == 0)
-				Imgs.AddRange(Container);
-			
-			var rnd = new Random();
-			int index = rnd.Next(0, Imgs.Count - 1);
-			Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
-					{
-						if (index > 0 && index < Imgs.Count)
-							backgroudImg.ImageUrl = Imgs[index];
-					}));
-			
-			Imgs.RemoveAt(index);
 		}
 	
 		private void getImages()
@@ -68,12 +50,26 @@ namespace Konachan
 			if (!Directory.Exists("cache"))
 				Directory.CreateDirectory("cache");
 			
+			Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
+					{
+						ProgressBar.Visibility = Visibility.Hidden;
+						ProgressbarText.Text = "Contacting konanchan...";
+						ProgressbarText.Visibility = Visibility.Visible;
+					}));
+			
 			var client = new WebClient();
-			var xml = client.DownloadString("https://konachan.com/post.xml?limit=100&tags=loli");
+			var xml = client.DownloadString("https://konachan.com/post.xml?limit=100&tags=loli&page=" + Page);
 			var xmlDocument = new XmlDocument();
 			xmlDocument.LoadXml(xml);
 			
 			XmlNodeList elements = xmlDocument.GetElementsByTagName("post");
+			
+			Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
+					{
+						ProgressbarText.Text = "";
+						ProgressbarText.Visibility = Visibility.Hidden;
+						ProgressBar.Visibility = Visibility.Visible;
+					}));
 			
 			foreach (XmlElement element in elements)
 			{
@@ -84,14 +80,13 @@ namespace Konachan
 							
 							img.Init(post);
 							img.MouseDown += img_MouseDown;
-							Container.Add(post);
+							Imgs.Add(post);
 							ImgListView.Items.Add(img);
 							
-							ProgressBar.Value = ((double)Container.Count / (double)elements.Count) * 100;
+							ProgressBar.Value = (double)Imgs.Count - ((Page-1)*100.0);
 						}));
 			}
-			                                                            	
-			Imgs.AddRange(Container);
+			Page++;
 			Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
 					{
 						ProgressBar.Visibility = Visibility.Hidden;
@@ -121,8 +116,16 @@ namespace Konachan
 		
 		void MetroWindow_Closing(object sender, CancelEventArgs e)
 		{
-			if(Directory.Exists("cache"))
-			   Directory.Delete("cache", true);
+			if (Directory.Exists("cache"))
+				Directory.Delete("cache", true);
+		}
+
+		void ImgListView_ScrollChanged(object sender, ScrollChangedEventArgs e)
+		{
+			if (e.VerticalOffset > 0 && e.VerticalOffset + e.ViewportHeight == e.ExtentHeight)
+			{
+				new Thread(getImages).Start();
+			}
 		}
 	}
 }

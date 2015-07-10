@@ -96,11 +96,23 @@ namespace Konachan
 		
 		private static void SetSource(CachedImage inst, String path)
 		{
-			var bitmapImage = new BitmapImage(new Uri(inst.ImageData.jpeg_url, UriKind.RelativeOrAbsolute));
-			var scale = new ScaleTransform(900 / inst.ImageData.jpeg_width, 600 / inst.ImageData.jpeg_height);
+			try
+			{
+				var bitmapImage = new BitmapImage();
+				var scale = new ScaleTransform(900 / inst.ImageData.jpeg_width, 600 / inst.ImageData.jpeg_height);
 			
-			inst.Source = new TransformedBitmap(bitmapImage, scale);
-			inst.onDownloadCompleted(inst, null);			
+				bitmapImage.BeginInit();
+				bitmapImage.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
+				bitmapImage.UriSource = new Uri(inst.ImageData.jpeg_url, UriKind.RelativeOrAbsolute);
+				bitmapImage.EndInit();
+			
+				inst.Source = new TransformedBitmap(bitmapImage, scale);
+				inst.onDownloadCompleted(inst, null);		
+			}
+			catch (Exception e)
+			{
+				System.Diagnostics.Debug.WriteLine(e.ToString());
+			}
 		}
 
 		protected void onDownloadCompleted(object sender, EventArgs e)
@@ -111,13 +123,25 @@ namespace Konachan
 		
 		public void Init(Post post)
 		{
-			var img = new BitmapImage(new Uri(post.preview_url, UriKind.RelativeOrAbsolute));
-			var scale = new ScaleTransform(150 / post.preview_width, 125 / post.preview_height);
-			
-			Width = 150;
-			Height = 125;
-			Source = new TransformedBitmap(img, scale);	
-			ImageData = post;
+			try
+			{
+				var img = new BitmapImage();
+				var scale = new ScaleTransform(150 / post.preview_width, 125 / post.preview_height);
+				
+				img.BeginInit();
+				img.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
+				img.UriSource = new Uri(post.preview_url, UriKind.RelativeOrAbsolute);
+				img.EndInit();
+				
+				Width = 150;
+				Height = 125;
+				Source = new TransformedBitmap(img, scale);	
+				ImageData = post;
+			}
+			catch (Exception e)
+			{
+				System.Diagnostics.Debug.WriteLine(e.ToString());
+			}
 		}
 	}
 }
