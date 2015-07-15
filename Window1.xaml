@@ -1,18 +1,18 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Controls:MetroWindow
-	x:Class="Konachan.Window1" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro" xmlns:local="clr-namespace:Konachan"
+	x:Class="Konachan.Window1" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro" xmlns:local="clr-namespace:Konachan" xmlns:Wpf="clr-namespace:System.Windows.Controls;assembly=System.Windows.Controls.Input.Toolkit"
 	Title="Konachan"
 	Height="700"
 	Width="1000"
 	Closing="MetroWindow_Closing"
 	ResizeMode="NoResize"
-	WindowStartupLocation="Manual"
-	Left="50"
-	Top="50">
+	Icon="http://konachan.com/favicon.ico"
+	ShowIconOnTitleBar="False"
+	WindowStartupLocation="CenterScreen">
 	<Grid>
 		<Grid
 			x:Name="backgroundImgGrid"
-			Visibility="Collapsed"
+			Visibility="Hidden"
 			Panel.ZIndex="5"
 			Width="900"
 			Height="600"
@@ -38,12 +38,72 @@
 				MouseDown="BackgroudImg_MouseDown"
 				DownloadCompleted="img_DownloadCompleted" />
 		</Grid>
+		<WrapPanel
+			x:Name="TagsPanel"
+			Orientation="Horizontal"
+			ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+			Width="752"
+			Height="29"
+			HorizontalAlignment="Left"
+			VerticalAlignment="Top"
+			Margin="50,8,0,0" />
+		<Wpf:AutoCompleteBox
+			x:Name="TagTextBox"
+			Height="30"
+			Width="317"
+			GotFocus="TagTextBox_GotFocus"
+			LostFocus="TagTextBox_LostFocus"
+			PreviewKeyDown="TagTextBox_PreviewKeyDown"
+			FilterMode="StartsWith"
+			Margin="50,45,0,0"
+			VerticalAlignment="Top"
+			HorizontalAlignment="Left" />
+		<Label
+			x:Name="AddTagTextBox"
+			Content="Add Tag"
+			IsHitTestVisible="False"
+			BorderThickness="0"
+			RenderTransformOrigin="0.5,0.5"
+			Width="120"
+			Height="28"
+			Grid.Column="0"
+			Grid.Row="0"
+			HorizontalAlignment="Left"
+			VerticalAlignment="Top"
+			Margin="179,46,0,0" />
+		<Button
+			x:Name="SearchButton"
+			Content="Search"
+			Width="75"
+			Height="23"
+			Click="SearchButton_Click"
+			HorizontalAlignment="Right"
+			VerticalAlignment="Top"
+			Margin="0,50,67,0" />
+		<Button
+			Content="Clear Tags"
+			x:Name="ClearTagsButton"
+			Visibility="Hidden"
+			Width="75"
+			Height="23"
+			Click="ClearTagsButton_Click"
+			HorizontalAlignment="Right"
+			VerticalAlignment="Top"
+			Margin="0,10,67,0" />
+		<Image
+			x:Name="StatusImage"
+			Width="25"
+			Height="25"
+			Source="/Konachan;component/status_down.png"
+			Grid.Column="0"
+			Grid.Row="0"
+			HorizontalAlignment="Right"
+			VerticalAlignment="Top"
+			Margin="0,10.5,8,0" />
 		<ProgressBar
 			x:Name="ProgressBar"
 			Height="20"
 			Width="974"
-			Grid.Column="0"
-			Grid.Row="0"
 			HorizontalAlignment="Left"
 			VerticalAlignment="Bottom"
 			Visibility="Hidden"
@@ -60,19 +120,27 @@
 			Width="317" />
 		<ListView
 			x:Name="ImgListView"
+			ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+			ScrollViewer.ScrollChanged="ImgListView_ScrollChanged"
 			Width="900"
-			Height="600"
+			Height="538"
 			HorizontalAlignment="Center"
 			VerticalAlignment="Top"
-			Margin="40,8,0,0"
-			ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-			ScrollViewer.ScrollChanged="ImgListView_ScrollChanged">
+			Margin="0,83,0,0">
 			<ListView.ItemsPanel>
 				<ItemsPanelTemplate>
 					<WrapPanel
-						Orientation="Horizontal"></WrapPanel>
+						Orientation="Horizontal" />
 				</ItemsPanelTemplate>
 			</ListView.ItemsPanel>
 		</ListView>
 	</Grid>
+	<Controls:MetroWindow.Resources>
+		<BitmapImage
+			x:Key="status_down"
+			UriSource="/Konachan;component/status_down.png" />
+		<BitmapImage
+			x:Key="status_up"
+			UriSource="/Konachan;component/status_up.png" />
+	</Controls:MetroWindow.Resources>
 </Controls:MetroWindow>

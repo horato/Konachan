@@ -8,6 +8,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Net;
 using System.Windows;
@@ -23,15 +24,15 @@ namespace Konachan
 	/// </summary>
 	public class CachedImage : Image
 	{
-		private static readonly string ExecutingDirectory;
+		private readonly string ExecutingDirectory;
 		public event EventHandler DownloadCompleted;
 		
 		public Post ImageData;
 		
-		static CachedImage()
+		public CachedImage()
 		{
 			ExecutingDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-			DefaultStyleKeyProperty.OverrideMetadata(typeof(CachedImage), new FrameworkPropertyMetadata(typeof(CachedImage)));
+			//DefaultStyleKeyProperty.OverrideMetadata(typeof(CachedImage), new FrameworkPropertyMetadata(typeof(CachedImage)));
 		}
 		
 		public readonly static DependencyProperty ImageUrlProperty = DependencyProperty.Register("ImageUrl", typeof(Post), typeof(CachedImage), new PropertyMetadata(default(Post), ImageUrlPropertyChanged));
@@ -103,7 +104,7 @@ namespace Konachan
 			
 				bitmapImage.BeginInit();
 				bitmapImage.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
-				bitmapImage.UriSource = new Uri(inst.ImageData.jpeg_url, UriKind.RelativeOrAbsolute);
+				bitmapImage.UriSource = new Uri(path, UriKind.RelativeOrAbsolute);
 				bitmapImage.EndInit();
 			
 				inst.Source = new TransformedBitmap(bitmapImage, scale);

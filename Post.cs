@@ -52,6 +52,11 @@ namespace Konachan
 		public string tags;
 		public double width;
 		
+		public Post()
+		{
+		
+		}
+		
 		public Post(XmlAttributeCollection collection)
 		{	
 			if(collection == null)
