@@ -16,6 +16,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 namespace Konachan
 {
@@ -72,26 +73,24 @@ namespace Konachan
 			}
 			else
 			{
-				try
+				var webClient = new WebClient();
+				webClient.DownloadFileCompleted += (sender, args) =>
 				{
-					var webClient = new WebClient();
-					webClient.DownloadFile(uri, tempFile);
-
-					if (!File.Exists(localFile))
+					if (args.Error != null)
 					{
-						lock (SafeCopy)
-						{
-							File.Move(tempFile, localFile);
-						}
+						File.Delete(tempFile);
+						return;
+					}
+					if (File.Exists(localFile))
+						return;
+					lock (SafeCopy)
+					{
+						File.Move(tempFile, localFile);
 					}
 					SetSource((CachedImage)obj, localFile);
-					
-				}
-				catch
-				{
-					File.Delete(tempFile);
-					return;
-				}
+				};
+ 
+				webClient.DownloadFileAsync(uri, tempFile);
 			}
 		}
 		
@@ -104,11 +103,13 @@ namespace Konachan
 			
 				bitmapImage.BeginInit();
 				bitmapImage.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
+				bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
 				bitmapImage.UriSource = new Uri(path, UriKind.RelativeOrAbsolute);
 				bitmapImage.EndInit();
 			
 				inst.Source = new TransformedBitmap(bitmapImage, scale);
-				inst.onDownloadCompleted(inst, null);		
+				inst.onDownloadCompleted(inst, null);	
+	
 			}
 			catch (Exception e)
 			{

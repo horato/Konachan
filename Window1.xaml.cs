@@ -46,10 +46,17 @@ namespace Konachan
 		{
 			InitializeComponent();
 			
+			WriteToLog.ExecutingDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+			WriteToLog.LogfileName = "Konachan.Log";
+			WriteToLog.CreateLogFile();
+			
+			AppDomain.CurrentDomain.FirstChanceException += Log.CurrentDomain_FirstChanceException;
+			AppDomain.CurrentDomain.UnhandledException += Log.CurrentDomain_UnhandledException;
+			
 			TagsManager.GetInstance();
 			Pinger.GetInstance().WebsiteStatusChanged += WebsiteStatusChanged;
 		}
-	
+		
 		private void getImages()
 		{
 			if (!Directory.Exists("cache"))
@@ -154,8 +161,8 @@ namespace Konachan
 					return;
 				
 				var tagName = TagTextBox.Text;
-				
 				var tag = new FormTag();
+				
 				tag.TagName.Text = tagName;
 				tag.RemoveButton.Click += tag_RemoveButton_Click;
 				TagsPanel.Children.Add(tag);
@@ -164,13 +171,16 @@ namespace Konachan
 				TagTextBox.Text = "";
 				return;
 			}
-			
+		}
+
+		void TagTextBox_KeyDown(object sender, KeyEventArgs e)
+		{
 			if (TagTextBox.Text.Length < 2)
 				return;
 			
 			TagTextBox.ItemsSource = TagsManager.GetInstance().GetTagHint(TagTextBox.Text + e.Key);
 		}
-
+		
 		void tag_RemoveButton_Click(object sender, RoutedEventArgs e)
 		{
 			var tag = (Button)sender;		
@@ -178,8 +188,12 @@ namespace Konachan
 			               where ((FormTag)r).RemoveButton == tag
 			               select r;
 			var element = toRemove.First();
+			
 			TagsPanel.Children.Remove(element);
 			TagsManager.GetInstance().RemoveTag(element.TagName.Text);
+			
+			if (TagsPanel.Children.Count == 0)
+				ClearTagsButton.Visibility = Visibility.Collapsed;
 		}
 		
 		void SearchButton_Click(object sender, RoutedEventArgs e)
