@@ -132,7 +132,7 @@ namespace Konachan
 			backgroudImg.Visibility = Visibility.Visible;
 		}
 		
-		void BackgroudImg_MouseDown(object sender, MouseButtonEventArgs e)
+		void BackgroudImg_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
 		{
 			backgroudImg.ImageUrl = null;
 			backgroudImg.Visibility = Visibility.Hidden;
@@ -233,6 +233,10 @@ namespace Konachan
 		void TagTextBox_LostFocus(object sender, RoutedEventArgs e)
 		{
 			AddTagTextBox.Visibility = Visibility.Visible;
+		}
+		void MenuItem_Click(object sender, RoutedEventArgs e)
+		{
+			
 		}
 	}
 }

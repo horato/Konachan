@@ -76,13 +76,12 @@ namespace Konachan
 				var webClient = new WebClient();
 				webClient.DownloadFileCompleted += (sender, args) =>
 				{
-					if (args.Error != null)
+					if (args.Error != null || File.Exists(localFile))
 					{
 						File.Delete(tempFile);
 						return;
 					}
-					if (File.Exists(localFile))
-						return;
+					
 					lock (SafeCopy)
 					{
 						File.Move(tempFile, localFile);

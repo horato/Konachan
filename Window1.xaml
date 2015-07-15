@@ -16,7 +16,7 @@
 			Panel.ZIndex="5"
 			Width="900"
 			Height="600"
-			MouseDown="BackgroudImg_MouseDown">
+			MouseLeftButtonDown="BackgroudImg_MouseLeftButtonDown">
 			<Grid.Background>
 				<SolidColorBrush
 					Color="Black"
@@ -35,8 +35,14 @@
 				VerticalAlignment="Top"
 				x:Name="backgroudImg"
 				Margin="0,0,0,0"
-				MouseDown="BackgroudImg_MouseDown"
-				DownloadCompleted="img_DownloadCompleted" />
+				MouseLeftButtonDown="BackgroudImg_MouseLeftButtonDown"
+				DownloadCompleted="img_DownloadCompleted">
+				<local:CachedImage.ContextMenu>
+					<ContextMenu>
+						<MenuItem Header="Test" Click="MenuItem_Click"/>
+					</ContextMenu>
+				</local:CachedImage.ContextMenu>
+			</local:CachedImage>
 		</Grid>
 		<WrapPanel
 			x:Name="TagsPanel"
