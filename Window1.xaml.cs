@@ -30,6 +30,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using System.Xml;
 using MahApps.Metro.Controls;
+using Microsoft.Win32;
 
 namespace Konachan
 {
@@ -101,12 +102,12 @@ namespace Konachan
 						{
 							var post = new Post(element.Attributes);
 							var img = new CachedImage();
-							
+				                                                        	
 							img.Init(post);
 							img.MouseDown += img_MouseDown;
 							Imgs.Add(post);
 							ImgListView.Items.Add(img);
-							
+				                                                        	
 							ProgressBar.Value = (double)Imgs.Count - ((Page - 1) * 100.0);
 						}));
 			}
@@ -183,7 +184,7 @@ namespace Konachan
 		
 		void tag_RemoveButton_Click(object sender, RoutedEventArgs e)
 		{
-			var tag = (Button)sender;		
+			var tag = (Button)sender;
 			var toRemove = from r in TagsPanel.Children.OfType<FormTag>()
 			               where ((FormTag)r).RemoveButton == tag
 			               select r;
@@ -224,19 +225,90 @@ namespace Konachan
 								StatusImage.Source = (BitmapImage)Resources["status_down"];
 								break;
 						}
-					}));		
+					}));
 		}
+		
 		void TagTextBox_GotFocus(object sender, RoutedEventArgs e)
 		{
 			AddTagTextBox.Visibility = Visibility.Hidden;
 		}
+		
 		void TagTextBox_LostFocus(object sender, RoutedEventArgs e)
 		{
 			AddTagTextBox.Visibility = Visibility.Visible;
 		}
-		void MenuItem_Click(object sender, RoutedEventArgs e)
+		
+		void OpenKonachanPost_Click(object sender, RoutedEventArgs e)
 		{
+			var item = (ContextMenu)((MenuItem)sender).Parent;
+			var img = (CachedImage)item.PlacementTarget;
 			
+			Process.Start("http://konachan.com/post/show/" + img.ImageData.id);
+		}
+		
+		void DownloadImage_Click(object sender, RoutedEventArgs e)
+		{
+			var item = (ContextMenu)((MenuItem)sender).Parent;
+			var img = (CachedImage)item.PlacementTarget;
+			
+			saveImage(img, true);
+		}
+		
+		void DownloadImageBestQuality_Click(object sender, RoutedEventArgs e)
+		{
+			var item = (ContextMenu)((MenuItem)sender).Parent;
+			var img = (CachedImage)item.PlacementTarget;
+			
+			saveImage(img, false);
+		}
+		private void saveImage(CachedImage img, bool jpeg)
+		{
+			var saveFileDialog1 = new SaveFileDialog();
+			var split = jpeg ? img.ImageData.jpeg_url.Split('/') : img.ImageData.file_url.Split('/');
+			var filename = split[split.Length - 1];
+			var suffixSplit = filename.Split('.');
+			var suffix = suffixSplit[suffixSplit.Length - 1];
+			
+			saveFileDialog1.Filter = string.Format("%1 files (*.%2)|*.%3|All files (*.*)|*.*", suffix.ToUpper(), suffix, suffix);
+			saveFileDialog1.FilterIndex = 1;
+			saveFileDialog1.FileName = filename;
+			saveFileDialog1.RestoreDirectory = true;
+
+			if (saveFileDialog1.ShowDialog().Value)
+			{
+				var myStream = saveFileDialog1.OpenFile();
+				if (myStream != null && myStream.CanWrite)
+				{
+					using (var client = new WebClient())
+					{
+						client.DownloadDataCompleted += (a, b) =>
+						{
+							if (b.Error == null)
+							{
+								myStream.Write(b.Result, 0, b.Result.Length);
+								myStream.Close();
+								Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
+										{
+											ProgressBar.Value = 0;
+											ProgressBar.Visibility = Visibility.Hidden;
+										}));
+							}
+						};
+						client.DownloadProgressChanged += (a, b) => Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
+								{
+									ProgressBar.Value = b.ProgressPercentage;
+								}));
+						
+						Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
+								{
+									ProgressBar.Value = 0;
+									ProgressBar.Visibility = Visibility.Visible;
+								}));
+						var uri = new Uri(jpeg ? img.ImageData.jpeg_url : img.ImageData.file_url);
+						client.DownloadDataAsync(uri);
+					}
+				}
+			}
 		}
 	}
 }

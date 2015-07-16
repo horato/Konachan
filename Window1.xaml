@@ -39,7 +39,9 @@
 				DownloadCompleted="img_DownloadCompleted">
 				<local:CachedImage.ContextMenu>
 					<ContextMenu>
-						<MenuItem Header="Test" Click="MenuItem_Click"/>
+						<MenuItem Header="Open Konachan Post" Click="OpenKonachanPost_Click"/>
+						<MenuItem Header="Download Image" Click="DownloadImage_Click"/>
+						<MenuItem Header="Download Image (Best Quality)" Click="DownloadImageBestQuality_Click"/>
 					</ContextMenu>
 				</local:CachedImage.ContextMenu>
 			</local:CachedImage>
