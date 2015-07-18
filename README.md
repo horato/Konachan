@@ -1,2 +1,2 @@
 # Konachan
-img stuff
+Konachan image viewer. NSFW.
