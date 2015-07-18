@@ -51,8 +51,8 @@ namespace Konachan
 			WriteToLog.LogfileName = "Konachan.Log";
 			WriteToLog.CreateLogFile();
 			
-			AppDomain.CurrentDomain.FirstChanceException += Log.CurrentDomain_FirstChanceException;
-			AppDomain.CurrentDomain.UnhandledException += Log.CurrentDomain_UnhandledException;
+			AppDomain.CurrentDomain.FirstChanceException += Logger.CurrentDomain_FirstChanceException;
+			AppDomain.CurrentDomain.UnhandledException += Logger.CurrentDomain_UnhandledException;
 			
 			TagsManager.GetInstance();
 			Pinger.GetInstance().WebsiteStatusChanged += WebsiteStatusChanged;
@@ -70,12 +70,24 @@ namespace Konachan
 						ProgressbarText.Visibility = Visibility.Visible;
 					}));
 			
-			var downloadString = "http://konachan.com/post.xml?limit=100&page=" + Page;
-			if (TagsManager.GetInstance().HasTags())
-				downloadString += "&tags=" + TagsManager.GetInstance().GetTagsAsString();
+			var downloadString = "";
+			var xml = "";
+			using (var client = new WebClient())
+			{
+				try
+				{
+					downloadString = "http://konachan.com/post.xml?limit=100&page=" + Page;
+					if (TagsManager.GetInstance().HasTags())
+						downloadString += "&tags=" + TagsManager.GetInstance().GetTagsAsString();
+					xml = client.DownloadString(downloadString);
+				}
+				catch (Exception)
+				{
+					Logger.Log("Failed to download posts from " + downloadString, "ERROR");
+					return;
+				}
+			}
 			
-			var client = new WebClient();
-			var xml = client.DownloadString(downloadString);
 			var xmlDocument = new XmlDocument();
 			xmlDocument.LoadXml(xml);
 			

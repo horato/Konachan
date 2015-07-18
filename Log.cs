@@ -15,7 +15,7 @@ namespace Konachan
 	/// <summary>
 	/// Shamelessly stolen from LegendaryClient LOL
 	/// </summary>
-	public class Log
+	public static class Logger
 	{
 		public static void CurrentDomain_FirstChanceException(object sender, FirstChanceExceptionEventArgs e)
 		{
@@ -30,6 +30,11 @@ namespace Konachan
 			var ex = (Exception)x.ExceptionObject;
 			WriteToLog.Log(ex.Message, "UNHANDLEDEXCEPTION");
 			WriteToLog.Log(ex.StackTrace, "UNHANDLEDEXCEPTION");
+		}
+		
+		public static void Log(string lines, string type = "LOG")
+		{
+			WriteToLog.Log(lines, type);
 		}
 	}
 	
